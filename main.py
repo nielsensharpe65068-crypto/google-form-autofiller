@@ -187,46 +187,16 @@ def submit(url: str, data: any):
 
 
 def main(url, count, delay, random_delay, only_required):
-    """Hàm chính để điều khiển việc gửi form lặp lại."""
-
-    # THÊM MỚI: Chỉ chạy khi được kích hoạt bởi GitHub Actions
-    # Chờ một khoảng thời gian ngẫu nhiên từ 5-10 phút (300-600 giây)
-    # rồi mới thực hiện gửi form.
-    # Điều này tạo ra khoảng cách ngẫu nhiên giữa các lần gửi.
-    if count == 1: # Giả định rằng khi chạy trên GitHub, count luôn là 1
-        sleep_duration = random.randint(300, 600)
-        print(f"Random delay selected. Script will wait for {sleep_duration} seconds before submitting.")
-        time.sleep(sleep_duration)
-
-    # Vòng lặp này bây giờ chủ yếu dùng để chạy trên máy cá nhân
-    for i in range(count):
-        print(f"--- Starting submission {i + 1} of {count} ---")
-        try:
-            payload = generate_request_body(url, only_required=only_required)
-            if payload:
-                submit(url, payload)
-            else:
-                print("Failed to generate payload. Cannot submit.")
-
-            # Logic chờ (chỉ áp dụng khi chạy trên máy cá nhân với count > 1)
-            if i < count - 1:
-                sleep_time = 0
-                if random_delay:
-                    try:
-                        min_delay, max_delay = map(int, random_delay.split('-'))
-                        sleep_time = random.randint(min_delay, max_delay)
-                    except ValueError:
-                        print("Invalid random_delay format. Use 'min-max'.")
-                        break
-                elif delay > 0:
-                    sleep_time = delay
-                
-                if sleep_time > 0:
-                    print(f"Waiting for {sleep_time} seconds before next submission...")
-                    time.sleep(sleep_time)
-
-        except Exception as e:
-            print(f"An unexpected error occurred during submission {i + 1}: {e}")
+    """Hàm chính, chỉ thực hiện gửi form 1 lần duy nhất khi được gọi."""
+    print(f"--- Starting submission ---")
+    try:
+        payload = generate_request_body(url, only_required=only_required)
+        if payload:
+            submit(url, payload)
+        else:
+            print("Failed to generate payload. Cannot submit.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
     
     print("--- Submission process finished! ---")
 
