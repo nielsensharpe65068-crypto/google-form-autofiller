@@ -189,16 +189,16 @@ def submit(url: str, data: any):
 def main(url, count, delay, random_delay, only_required):
     """Hàm chính để điều khiển việc gửi form lặp lại."""
 
-    def countdown(seconds):
-        """Hàm hiển thị đồng hồ đếm ngược."""
-        for i in range(seconds, 0, -1):
-            # Ghi đè lên cùng một dòng trên terminal
-            sys.stdout.write(f"\rWaiting for {i} seconds before next submission... ")
-            sys.stdout.flush()
-            time.sleep(1)
-        # In một dòng mới sau khi đếm ngược xong
-        print() 
+    # THÊM MỚI: Chỉ chạy khi được kích hoạt bởi GitHub Actions
+    # Chờ một khoảng thời gian ngẫu nhiên từ 5-10 phút (300-600 giây)
+    # rồi mới thực hiện gửi form.
+    # Điều này tạo ra khoảng cách ngẫu nhiên giữa các lần gửi.
+    if count == 1: # Giả định rằng khi chạy trên GitHub, count luôn là 1
+        sleep_duration = random.randint(300, 600)
+        print(f"Random delay selected. Script will wait for {sleep_duration} seconds before submitting.")
+        time.sleep(sleep_duration)
 
+    # Vòng lặp này bây giờ chủ yếu dùng để chạy trên máy cá nhân
     for i in range(count):
         print(f"--- Starting submission {i + 1} of {count} ---")
         try:
@@ -208,7 +208,7 @@ def main(url, count, delay, random_delay, only_required):
             else:
                 print("Failed to generate payload. Cannot submit.")
 
-            # Logic chờ giữa các lần gửi
+            # Logic chờ (chỉ áp dụng khi chạy trên máy cá nhân với count > 1)
             if i < count - 1:
                 sleep_time = 0
                 if random_delay:
@@ -222,15 +222,13 @@ def main(url, count, delay, random_delay, only_required):
                     sleep_time = delay
                 
                 if sleep_time > 0:
-                    # Gọi hàm đếm ngược thay vì time.sleep
-                    countdown(sleep_time)
+                    print(f"Waiting for {sleep_time} seconds before next submission...")
+                    time.sleep(sleep_time)
 
         except Exception as e:
             print(f"An unexpected error occurred during submission {i + 1}: {e}")
-            print("Waiting for 60 seconds before retrying...")
-            time.sleep(60)
     
-    print("--- All submissions completed! ---")
+    print("--- Submission process finished! ---")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tự động gửi Google Form nhiều lần.')
