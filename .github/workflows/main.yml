@@ -4,9 +4,8 @@ name: Auto-submit Google Form
 # Lịch trình chạy
 on:
   schedule:
-    # CHỈNH SỬA DÒNG NÀY: Chạy sau mỗi 7 phút
-    - cron: '* * * * *'
-  # Cho phép chạy thủ công từ tab Actions
+    # Chạy sau mỗi 5 phút
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
